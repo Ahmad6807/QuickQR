@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QuickQR — Instant QR Code Generator</title>
+  <meta name="description" content="QuickQR converts any text or URL into a downloadable QR code, entirely in your browser. No data leaves your device." />
+  <meta property="og:title" content="QuickQR — Instant QR Code Generator" />
+  <meta property="og:description" content="Generate high-quality QR codes from any text or URL instantly in your browser." />
+  <meta property="og:type" content="website" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="app-shell">
+
+    <!-- ── Header ─────────────────────────────────────────── -->
+    <header class="site-header">
+      <div class="header-inner">
+        <div class="logo">
+          <svg class="logo-mark" width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+            <rect x="2"  y="2"  width="12" height="12" rx="2" fill="currentColor"/>
+            <rect x="18" y="2"  width="12" height="12" rx="2" fill="currentColor"/>
+            <rect x="2"  y="18" width="12" height="12" rx="2" fill="currentColor"/>
+            <rect x="5"  y="5"  width="6" height="6" rx="1" fill="white"/>
+            <rect x="21" y="5"  width="6" height="6" rx="1" fill="white"/>
+            <rect x="5"  y="21" width="6" height="6" rx="1" fill="white"/>
+            <rect x="8"  y="8"  width="2" height="2" fill="currentColor"/>
+            <rect x="24" y="8"  width="2" height="2" fill="currentColor"/>
+            <rect x="8"  y="24" width="2" height="2" fill="currentColor"/>
+            <rect x="18" y="18" width="4" height="4" rx="0.5" fill="currentColor"/>
+            <rect x="24" y="18" width="4" height="4" rx="0.5" fill="currentColor"/>
+            <rect x="26" y="24" width="4" height="4" rx="0.5" fill="currentColor"/>
+            <rect x="18" y="26" width="4" height="4" rx="0.5" fill="currentColor"/>
+          </svg>
+          <span class="logo-name">Quick<strong>QR</strong></span>
+        </div>
+
+        <div class="header-right">
+          <span class="privacy-pill">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            Local only · no server
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ── Main ───────────────────────────────────────────── -->
+    <main class="layout" role="main">
+
+      <!-- LEFT: Controls -->
+      <section class="col-form" aria-label="QR code input and options">
+        <div class="form-lead">
+          <h1 class="form-headline">Turn anything into a QR code</h1>
+          <p class="form-sub">Paste a link, type a message, or drop in a block of text — up to 10,000 characters.</p>
+        </div>
+
+        <!-- Textarea -->
+        <div class="field" id="field-wrap">
+          <div class="field-top">
+            <label class="field-label" for="qr-input">Your text or URL</label>
+            <span class="char-count" id="char-counter" aria-live="polite">0 / 10,000</span>
+          </div>
+          <textarea
+            id="qr-input"
+            class="field-textarea"
+            placeholder="https://example.com"
+            maxlength="10000"
+            rows="7"
+            spellcheck="false"
+            autocomplete="off"
+            aria-describedby="field-error char-counter"
+          ></textarea>
+          <p class="field-error" id="field-error" role="alert" aria-live="assertive"></p>
+        </div>
+
+        <!-- Settings strip -->
+        <div class="settings-strip">
+          <div class="setting-item">
+            <label class="setting-label" for="ec-level">Error correction</label>
+            <div class="select-wrap">
+              <select id="ec-level" class="setting-select" aria-label="Error correction level">
+                <option value="L">Low — L</option>
+                <option value="M" selected>Medium — M</option>
+                <option value="Q">High — Q</option>
+                <option value="H">Max — H</option>
+              </select>
+              <svg class="select-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+          </div>
+
+          <div class="setting-item">
+            <label class="setting-label" for="qr-size">Output size</label>
+            <div class="select-wrap">
+              <select id="qr-size" class="setting-select" aria-label="QR code output size">
+                <option value="200">200 px — Small</option>
+                <option value="300" selected>300 px — Medium</option>
+                <option value="400">400 px — Large</option>
+                <option value="512">512 px — XL</option>
+              </select>
+              <svg class="select-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Color strip
+             Each color input is the REAL <input type="color">, styled as a
+             swatch inline inside a <label>. Clicking anywhere on the label
+             opens the native picker. No JS click() tricks needed — works
+             correctly on Chrome, Firefox, Safari, iOS, and Android. -->
+        <div class="color-strip">
+          <div class="color-item">
+            <span class="setting-label" id="fg-label">Foreground</span>
+            <label class="color-pill" for="fg-color" aria-label="Choose foreground color">
+              <input
+                type="color"
+                id="fg-color"
+                class="color-input-swatch"
+                value="#1c1917"
+                aria-labelledby="fg-label"
+              />
+              <span class="color-hex-val" id="fg-hex">#1C1917</span>
+            </label>
+          </div>
+
+          <div class="color-mid-sep" aria-hidden="true">↔</div>
+
+          <div class="color-item">
+            <span class="setting-label" id="bg-label">Background</span>
+            <label class="color-pill" for="bg-color" aria-label="Choose background color">
+              <input
+                type="color"
+                id="bg-color"
+                class="color-input-swatch"
+                value="#ffffff"
+                aria-labelledby="bg-label"
+              />
+              <span class="color-hex-val" id="bg-hex">#FFFFFF</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="action-row">
+          <button id="clear-btn" class="btn-ghost" type="button" aria-label="Clear all input and reset">
+            Clear
+          </button>
+          <button id="generate-btn" class="btn-generate" type="button" aria-label="Generate QR code from input">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+            Generate QR
+          </button>
+        </div>
+
+        <p class="hint-text" aria-label="Keyboard shortcut">Ctrl + Enter to generate instantly</p>
+      </section>
+
+      <!-- DIVIDER -->
+      <div class="col-divider" aria-hidden="true"></div>
+
+      <!-- RIGHT: Preview -->
+      <section class="col-preview" aria-label="QR code preview and download">
+
+        <!-- Scanner frame — the signature element -->
+        <div class="scanner-frame" id="scanner-frame" aria-label="QR code preview area" role="img">
+
+          <!-- Animated scanner beam -->
+          <div class="scanner-line" id="scanner-line" aria-hidden="true"></div>
+
+          <!-- Corner accent marks -->
+          <span class="corner corner-tl" aria-hidden="true"></span>
+          <span class="corner corner-tr" aria-hidden="true"></span>
+          <span class="corner corner-bl" aria-hidden="true"></span>
+          <span class="corner corner-br" aria-hidden="true"></span>
+
+          <!-- Idle placeholder -->
+          <div class="frame-placeholder" id="qr-placeholder">
+            <svg class="ph-icon" width="72" height="72" viewBox="0 0 72 72" fill="none" aria-hidden="true">
+              <rect x="6"  y="6"  width="22" height="22" rx="3" stroke="currentColor" stroke-width="2"/>
+              <rect x="10" y="10" width="14" height="14" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+              <rect x="13" y="13" width="8"  height="8"  rx="0.5" fill="currentColor" opacity="0.4"/>
+              <rect x="44" y="6"  width="22" height="22" rx="3" stroke="currentColor" stroke-width="2"/>
+              <rect x="48" y="10" width="14" height="14" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+              <rect x="51" y="13" width="8"  height="8"  rx="0.5" fill="currentColor" opacity="0.4"/>
+              <rect x="6"  y="44" width="22" height="22" rx="3" stroke="currentColor" stroke-width="2"/>
+              <rect x="10" y="48" width="14" height="14" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+              <rect x="13" y="51" width="8"  height="8"  rx="0.5" fill="currentColor" opacity="0.4"/>
+              <rect x="44" y="44" width="6" height="6" rx="1" fill="currentColor" opacity="0.2"/>
+              <rect x="52" y="44" width="6" height="6" rx="1" fill="currentColor" opacity="0.15"/>
+              <rect x="60" y="44" width="6" height="6" rx="1" fill="currentColor" opacity="0.25"/>
+              <rect x="44" y="52" width="6" height="6" rx="1" fill="currentColor" opacity="0.1"/>
+              <rect x="60" y="52" width="6" height="6" rx="1" fill="currentColor" opacity="0.2"/>
+              <rect x="44" y="60" width="6" height="6" rx="1" fill="currentColor" opacity="0.3"/>
+              <rect x="52" y="60" width="6" height="6" rx="1" fill="currentColor" opacity="0.1"/>
+              <rect x="60" y="60" width="6" height="6" rx="1" fill="currentColor" opacity="0.2"/>
+            </svg>
+            <p class="ph-text">Your QR code will appear here</p>
+            <p class="ph-hint">Start typing on the left →</p>
+          </div>
+
+          <!-- Generated canvas -->
+          <div class="frame-canvas" id="qr-canvas-wrap" hidden aria-live="polite">
+            <canvas id="qr-canvas" aria-label="Generated QR code image"></canvas>
+          </div>
+
+        </div>
+
+        <!-- Status row -->
+        <div class="preview-meta" id="preview-meta" hidden>
+          <div class="meta-status">
+            <span class="status-dot" aria-hidden="true"></span>
+            <span class="status-text">Ready</span>
+            <span class="status-chars" id="status-chars" aria-live="polite"></span>
+          </div>
+        </div>
+
+        <!-- Download button -->
+        <button
+          id="download-btn"
+          class="btn-download"
+          type="button"
+          disabled
+          aria-label="Save QR code as PNG image"
+          aria-disabled="true"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Save as PNG
+        </button>
+
+        <!-- iOS Safari fallback hint (shown only when needed by JS) -->
+        <p class="ios-save-hint" id="ios-hint" hidden>
+          Tap and hold the QR code above, then choose <strong>Save to Photos</strong> or <strong>Save Image</strong>.
+        </p>
+
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>Runs entirely in your browser &mdash; no data ever leaves your device</p>
+    </footer>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
