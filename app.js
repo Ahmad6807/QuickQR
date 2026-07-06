@@ -26,6 +26,7 @@
   const fgHex         = document.getElementById('fg-hex');
   const bgHex         = document.getElementById('bg-hex');
   const iosHint       = document.getElementById('ios-hint');
+  const themeSelect   = document.getElementById('theme-select');
 
   /* ── Config ──────────────────────────────────────────────── */
   const MAX_CHARS   = 10000;
@@ -393,6 +394,17 @@
     const btnLabel = downloadBtn.querySelector('svg');
     downloadBtn.setAttribute('aria-label', 'View QR code to save (iOS)');
     downloadBtn.childNodes[downloadBtn.childNodes.length - 1].textContent = ' View to Save';
+  }
+
+  /* Theme Toggle Setup */
+  if (themeSelect) {
+    const currentTheme = localStorage.getItem('quickqr-theme') || 'system';
+    themeSelect.value = currentTheme;
+    themeSelect.addEventListener('change', (e) => {
+      const newTheme = e.target.value;
+      localStorage.setItem('quickqr-theme', newTheme);
+      document.documentElement.setAttribute('data-theme', newTheme);
+    });
   }
 
   qrInput.focus();
