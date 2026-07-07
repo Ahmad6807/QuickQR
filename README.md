@@ -16,6 +16,7 @@ A fast, private, single-page QR code generator that runs entirely in your browse
 | **Error correction** | Four levels: Low / Medium / High / Max |
 | **Output size** | 200 px · 300 px · 400 px · 512 px |
 | **Custom colors** | Native color pickers for foreground and background |
+| **Theme toggle** | Switch between System preference, Light, or Dark mode (saved locally) |
 | **Download** | Saves as `quickqr-{timestamp}.png` |
 | **iOS Safari** | Opens QR in a new tab for long-press save |
 | **Keyboard shortcut** | `Ctrl + Enter` (or `Cmd + Enter`) to generate immediately |
@@ -150,6 +151,8 @@ All design tokens live at the top of [`style.css`](style.css) inside `:root { ..
   --font-mono:    'JetBrains Mono', monospace;
 }
 ```
+
+Dark mode overrides are defined further down in `[data-theme="dark"]`.
 
 To change the character limit, edit the single constant in [`app.js`](app.js):
 
