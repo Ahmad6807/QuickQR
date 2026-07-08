@@ -10,6 +10,7 @@
   const qrInput       = document.getElementById('qr-input');
   const charCounter   = document.getElementById('char-counter');
   const fieldError    = document.getElementById('field-error');
+  const fieldWarning  = document.getElementById('field-warning');
   const clearBtn      = document.getElementById('clear-btn');
   const generateBtn   = document.getElementById('generate-btn');
   const downloadBtn   = document.getElementById('download-btn');
@@ -36,6 +37,15 @@
   let qrGenerated   = false;
   let debounceTimer = null;
   let qrInstance    = null;
+  let ecAutoMode    = true;
+
+  /* ── EC Capacity ─────────────────────────────────────────── */
+  const EC_CAPACITY = {
+    L: 2953,
+    M: 2331,
+    Q: 1663,
+    H: 1273
+  };
 
   /* ── Platform detection ──────────────────────────────────── */
   /**
@@ -65,11 +75,41 @@
     debounceTimer = setTimeout(fn, DEBOUNCE_MS);
   };
 
+  const getOptimalEC = (len) => {
+    if (len < 600) return 'H';
+    if (len < 1200) return 'Q';
+    if (len < 1800) return 'M';
+    return 'L';
+  };
+
+  const checkCapacityWarning = (len) => {
+    const currentEC = ecLevel.value;
+    const maxCap = EC_CAPACITY[currentEC];
+    
+    if (len > maxCap * 0.7) {
+      fieldWarning.hidden = false;
+      if (currentEC === 'L') {
+        fieldWarning.textContent = 'Approaching absolute maximum capacity. Consider shortening your text for a more scannable code.';
+      } else {
+        fieldWarning.textContent = `Approaching maximum capacity for level ${currentEC}. Consider lowering error correction to keep the QR scannable.`;
+      }
+    } else {
+      fieldWarning.hidden = true;
+      fieldWarning.textContent = '';
+    }
+  };
+
   const updateCharCounter = () => {
     const len = qrInput.value.length;
     charCounter.textContent = `${len.toLocaleString()} / ${MAX_CHARS.toLocaleString()}`;
     charCounter.classList.toggle('warn',  len > MAX_CHARS * 0.75);
     charCounter.classList.toggle('limit', len >= MAX_CHARS);
+
+    if (ecAutoMode && len > 0) {
+      ecLevel.value = getOptimalEC(len);
+    }
+
+    checkCapacityWarning(len);
   };
 
   const setError = msg => {
@@ -302,6 +342,7 @@
   /* ── Clear ───────────────────────────────────────────────── */
   const clearAll = () => {
     qrInput.value = '';
+    ecAutoMode = true;
     updateCharCounter();
     clearError();
 
@@ -366,7 +407,11 @@
   clearBtn.addEventListener('click', clearAll);
   downloadBtn.addEventListener('click', downloadQR);
 
-  ecLevel.addEventListener('change', onOptionChange);
+  ecLevel.addEventListener('change', (e) => {
+    ecAutoMode = false;
+    checkCapacityWarning(qrInput.value.length);
+    onOptionChange();
+  });
   qrSize.addEventListener('change',  onOptionChange);
 
   /*
