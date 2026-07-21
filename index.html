@@ -183,6 +183,37 @@
       <!-- RIGHT: Preview -->
       <section class="col-preview" aria-label="QR code preview and download">
 
+        <!-- Preview area size controller -->
+        <div class="frame-size-control" aria-label="Preview area size controls">
+          <div class="size-control-header">
+            <label class="setting-label" for="frame-size-slider">Preview Area Size</label>
+            <div class="size-badge-wrap">
+              <span class="size-val-badge" id="frame-size-badge" aria-live="polite">300 × 300 px</span>
+              <button type="button" id="reset-size-btn" class="size-reset-btn" title="Reset to default size (300px)" aria-label="Reset preview area size">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="size-slider-row">
+            <input
+              type="range"
+              id="frame-size-slider"
+              class="size-slider"
+              min="160"
+              max="520"
+              step="10"
+              value="300"
+              aria-label="Adjust QR code preview box size"
+            />
+            <div class="size-presets" role="group" aria-label="Preset size options">
+              <button type="button" class="preset-btn" data-size="200" aria-label="Set size 200px">200</button>
+              <button type="button" class="preset-btn active" data-size="300" aria-label="Set size 300px">300</button>
+              <button type="button" class="preset-btn" data-size="400" aria-label="Set size 400px">400</button>
+              <button type="button" class="preset-btn" data-size="500" aria-label="Set size 500px">500</button>
+            </div>
+          </div>
+        </div>
+
         <!-- Scanner frame — the signature element -->
         <div class="scanner-frame" id="scanner-frame" aria-label="QR code preview area" role="img">
 
@@ -223,6 +254,15 @@
           <!-- Generated canvas -->
           <div class="frame-canvas" id="qr-canvas-wrap" hidden aria-live="polite">
             <canvas id="qr-canvas" aria-label="Generated QR code image"></canvas>
+          </div>
+
+          <!-- Interactive resize handle on bottom-right corner -->
+          <div class="resize-handle" id="resize-handle" title="Drag to resize preview area" role="slider" aria-label="Drag handle to resize preview area" tabindex="0">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <line x1="14" y1="4" x2="4" y2="14"/>
+              <line x1="14" y1="9" x2="9" y2="14"/>
+              <line x1="14" y1="14" x2="14" y2="14"/>
+            </svg>
           </div>
 
         </div>
