@@ -452,6 +452,140 @@
     });
   }
 
+  /* ── Frame Sizing DOM & Logic ────────────────────────────── */
+  const frameSizeSlider = document.getElementById('frame-size-slider');
+  const frameSizeBadge  = document.getElementById('frame-size-badge');
+  const resetSizeBtn    = document.getElementById('reset-size-btn');
+  const presetBtns      = document.querySelectorAll('.preset-btn');
+  const resizeHandle    = document.getElementById('resize-handle');
+
+  const MIN_FRAME_SIZE     = 160;
+  const MAX_FRAME_SIZE     = 520;
+  const DEFAULT_FRAME_SIZE = 300;
+
+  /**
+   * Sets the scanner frame width & height, updates slider and badge,
+   * highlights matching preset buttons, and persists to localStorage.
+   */
+  const setFrameSize = (size, save = true) => {
+    const clampedSize = Math.max(MIN_FRAME_SIZE, Math.min(MAX_FRAME_SIZE, Math.round(size)));
+
+    scannerFrame.style.setProperty('--frame-size', `${clampedSize}px`);
+
+    if (frameSizeSlider) frameSizeSlider.value = clampedSize;
+    if (frameSizeBadge)  frameSizeBadge.textContent = `${clampedSize} × ${clampedSize} px`;
+
+    if (presetBtns) {
+      presetBtns.forEach(btn => {
+        const btnSize = parseInt(btn.dataset.size, 10);
+        btn.classList.toggle('active', btnSize === clampedSize);
+      });
+    }
+
+    if (save) {
+      localStorage.setItem('quickqr-frame-size', clampedSize);
+    }
+  };
+
+  /* Wire up frame sizing slider, presets & reset button */
+  if (frameSizeSlider) {
+    frameSizeSlider.addEventListener('input', (e) => {
+      setFrameSize(parseInt(e.target.value, 10));
+    });
+  }
+
+  if (presetBtns) {
+    presetBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const size = parseInt(btn.dataset.size, 10);
+        setFrameSize(size);
+      });
+    });
+  }
+
+  if (resetSizeBtn) {
+    resetSizeBtn.addEventListener('click', () => {
+      setFrameSize(DEFAULT_FRAME_SIZE);
+    });
+  }
+
+  /* ── Interactive Drag Resizing ────────────────────────────── */
+  if (resizeHandle && scannerFrame) {
+    let isDragging = false;
+    let startX = 0;
+    let startY = 0;
+    let startSize = DEFAULT_FRAME_SIZE;
+
+    const startDrag = (e) => {
+      isDragging = true;
+      scannerFrame.classList.add('is-resizing');
+
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+      startX = clientX;
+      startY = clientY;
+      startSize = scannerFrame.offsetWidth || DEFAULT_FRAME_SIZE;
+
+      document.addEventListener('mousemove', handleDrag);
+      document.addEventListener('touchmove', handleDrag, { passive: false });
+      document.addEventListener('mouseup', stopDrag);
+      document.addEventListener('touchend', stopDrag);
+      document.addEventListener('touchcancel', stopDrag);
+    };
+
+    const handleDrag = (e) => {
+      if (!isDragging) return;
+      if (e.cancelable) e.preventDefault();
+
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+      const deltaX = clientX - startX;
+      const deltaY = clientY - startY;
+      const delta = Math.abs(deltaX) > Math.abs(deltaY) ? deltaX : deltaY;
+      const newSize = startSize + delta;
+
+      setFrameSize(newSize, false);
+    };
+
+    const stopDrag = () => {
+      if (!isDragging) return;
+      isDragging = false;
+      scannerFrame.classList.remove('is-resizing');
+
+      const currentSize = scannerFrame.offsetWidth || DEFAULT_FRAME_SIZE;
+      setFrameSize(currentSize, true);
+
+      document.removeEventListener('mousemove', handleDrag);
+      document.removeEventListener('touchmove', handleDrag);
+      document.removeEventListener('mouseup', stopDrag);
+      document.removeEventListener('touchend', stopDrag);
+      document.removeEventListener('touchcancel', stopDrag);
+    };
+
+    resizeHandle.addEventListener('mousedown', startDrag);
+    resizeHandle.addEventListener('touchstart', startDrag, { passive: true });
+
+    /* Keyboard control for accessibility */
+    resizeHandle.addEventListener('keydown', (e) => {
+      const currentSize = scannerFrame.offsetWidth || DEFAULT_FRAME_SIZE;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        setFrameSize(currentSize + 10);
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        setFrameSize(currentSize - 10);
+      }
+    });
+  }
+
+  /* Load saved frame size on init */
+  const savedFrameSize = localStorage.getItem('quickqr-frame-size');
+  if (savedFrameSize) {
+    setFrameSize(parseInt(savedFrameSize, 10), false);
+  }
+
   qrInput.focus();
 
 })();
