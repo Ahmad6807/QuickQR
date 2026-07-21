@@ -7,7 +7,7 @@
 /* ── Tokens ─────────────────────────────────────────────────── */
 :root {
   /* Palette */
-  --ink:           #211107;   /* stone-950 */
+  --ink:           #1c1917;   /* stone-950 */
   --ink-mid:       #44403c;   /* stone-700 */
   --ink-muted:     #78716c;   /* stone-500 */
   --ink-dim:       #a8a29e;   /* stone-400 */
@@ -360,6 +360,20 @@ body {
   gap: 5px;
 }
 
+.field-warning {
+  font-size: 0.8rem;
+  color: #d97706; /* amber-600 */
+  min-height: 18px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: -3px;
+}
+
+[data-theme="dark"] .field-warning {
+  color: #f59e0b; /* amber-500 */
+}
+
 /* Settings strip */
 .settings-strip {
   display: grid;
@@ -576,16 +590,130 @@ body {
   gap: 18px;
 }
 
+/* ── Frame size controller ──────────────────────────────────── */
+.frame-size-control {
+  width: 100%;
+  max-width: var(--frame-size, 300px);
+  min-width: 160px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: max-width 0.15s ease;
+}
+
+.scanner-frame.is-resizing ~ .frame-size-control,
+.scanner-frame.is-resizing {
+  transition: none;
+}
+
+.size-control-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.size-badge-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.size-val-badge {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--forest);
+  background: var(--forest-lt);
+  padding: 2px 8px;
+  border-radius: 100px;
+  border: 1px solid rgba(21,128,61,0.2);
+  letter-spacing: 0.02em;
+}
+
+.size-reset-btn {
+  background: none;
+  border: none;
+  color: var(--ink-dim);
+  cursor: pointer;
+  padding: 3px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--ease), background var(--ease);
+}
+
+.size-reset-btn:hover {
+  color: var(--ink);
+  background: var(--surface-raised);
+}
+
+.size-slider-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.size-slider {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--border);
+  outline: none;
+  accent-color: var(--forest);
+  cursor: pointer;
+}
+
+.size-slider:focus-visible {
+  outline: 2px solid var(--forest);
+  outline-offset: 2px;
+}
+
+.size-presets {
+  display: flex;
+  gap: 6px;
+  width: 100%;
+}
+
+.preset-btn {
+  flex: 1;
+  padding: 4px 0;
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--ink-mid);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--ease);
+  text-align: center;
+}
+
+.preset-btn:hover {
+  border-color: var(--ink-dim);
+  color: var(--ink);
+  background: var(--surface-raised);
+}
+
+.preset-btn.active {
+  background: var(--forest);
+  color: var(--btn-fg);
+  border-color: var(--forest);
+  font-weight: 700;
+}
+
 /* ── Scanner frame — THE signature element ───────────────────
    A precision rectangle with corner bracket marks.
    The red scanner line sweeps it like a real QR reader.
    ─────────────────────────────────────────────────────────── */
 .scanner-frame {
   position: relative;
-  width: 100%;
-  max-width: 300px;
-  /* aspect-ratio fallback for Safari < 15 */
-  height: 300px;
+  width: var(--frame-size, 300px);
+  height: var(--frame-size, 300px);
+  max-width: 100%;
+  min-width: 160px;
+  min-height: 160px;
   aspect-ratio: 1 / 1;
   background: var(--surface);
   border: 1.5px solid var(--border);
@@ -595,12 +723,40 @@ body {
   justify-content: center;
   overflow: hidden;
   box-shadow: var(--shadow-card);
+  transition: border-color 0.3s ease, width 0.15s ease, height 0.15s ease;
+}
+
+.scanner-frame.is-resizing {
   transition: border-color 0.3s ease;
 }
 
-/* aspect-ratio support — remove fixed height on browsers that support it */
-@supports (aspect-ratio: 1) {
-  .scanner-frame { height: auto; }
+/* ── Interactive resize handle ──────────────────────────────── */
+.resize-handle {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 28px;
+  height: 28px;
+  padding: 4px;
+  z-index: 5;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  color: var(--ink-dim);
+  cursor: nwse-resize;
+  border-bottom-right-radius: var(--r-md);
+  transition: color var(--ease), background var(--ease);
+  background: linear-gradient(135deg, transparent 40%, rgba(0,0,0,0.06) 100%);
+  touch-action: none;
+  user-select: none;
+}
+
+.resize-handle:hover,
+.resize-handle:focus-visible,
+.scanner-frame.is-resizing .resize-handle {
+  color: var(--forest);
+  background: linear-gradient(135deg, transparent 20%, var(--forest-lt) 100%);
+  outline: none;
 }
 
 .scanner-frame.is-scanning {
@@ -740,7 +896,9 @@ body {
   align-items: center;
   justify-content: center;
   width: 100%;
-  max-width: 300px;
+  max-width: var(--frame-size, 300px);
+  min-width: 160px;
+  transition: max-width 0.15s ease;
 }
 
 .meta-status {
@@ -781,12 +939,15 @@ body {
   font-size: 0.75rem;
   color: var(--ink-muted);
   text-align: center;
-  max-width: 300px;
+  width: 100%;
+  max-width: var(--frame-size, 300px);
+  min-width: 160px;
   line-height: 1.5;
   padding: 8px 12px;
   background: var(--surface-raised);
   border: 1px solid var(--border);
   border-radius: var(--r-sm);
+  transition: max-width 0.15s ease;
 }
 
 /* ── Download button ─────────────────────────────────────────── */
@@ -796,7 +957,8 @@ body {
   justify-content: center;
   gap: 8px;
   width: 100%;
-  max-width: 300px;
+  max-width: var(--frame-size, 300px);
+  min-width: 160px;
   padding: 13px 20px;
   border: none;
   border-radius: var(--r-md);
@@ -807,7 +969,7 @@ body {
   font-weight: 700;
   cursor: pointer;
   box-shadow: var(--shadow-dl);
-  transition: background var(--ease), box-shadow var(--ease), transform var(--ease), opacity var(--ease);
+  transition: background var(--ease), box-shadow var(--ease), transform var(--ease), opacity var(--ease), max-width 0.15s ease;
   letter-spacing: -0.01em;
   min-height: 44px;
 }
