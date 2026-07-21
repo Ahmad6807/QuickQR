@@ -13,6 +13,7 @@ A fast, private, single-page QR code generator that runs entirely in your browse
 | **Input** | Plain text or any URL, up to **10,000 characters** |
 | **Live generation** | QR updates automatically 480 ms after you stop typing |
 | **Instant paste** | Paste a URL and the QR generates immediately |
+| **Resizable preview** | Adjust QR preview box size dynamically (160 px – 520 px) using a range slider, preset buttons (200, 300, 400, 500 px), reset button, or interactive corner drag handle (size saved locally) |
 | **Error correction** | Four levels: Low / Medium / High / Max |
 | **Output size** | 200 px · 300 px · 400 px · 512 px |
 | **Custom colors** | Native color pickers for foreground and background |
@@ -154,11 +155,20 @@ All design tokens live at the top of [`style.css`](style.css) inside `:root { ..
 
 Dark mode overrides are defined further down in `[data-theme="dark"]`.
 
-To change the character limit, edit the single constant in [`app.js`](app.js):
+To change the character limit or preview area size limits, edit the constants in [`app.js`](app.js):
 
 ```js
-const MAX_CHARS = 10000;
+const MAX_CHARS          = 10000;
+const MIN_FRAME_SIZE     = 160;   // Minimum preview box size in pixels
+const MAX_FRAME_SIZE     = 520;   // Maximum preview box size in pixels
+const DEFAULT_FRAME_SIZE = 300;   // Default preview box size in pixels
 ```
+
+### Local Storage Preferences
+
+QuickQR persists your preferences locally in your browser's `localStorage`:
+- `quickqr-theme`: Selected theme (`system`, `light`, or `dark`).
+- `quickqr-frame-size`: Preferred QR code preview area box size in pixels.
 
 ---
 
