@@ -968,7 +968,7 @@ body {
   border: none;
   border-radius: var(--r-md);
   background: var(--ink);
-  color: var(--btn-fg);
+  color: var(--paper);
   font-family: var(--font-body);
   font-size: 0.9rem;
   font-weight: 700;
