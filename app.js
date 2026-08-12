@@ -14,6 +14,8 @@
   const clearBtn      = document.getElementById('clear-btn');
   const generateBtn   = document.getElementById('generate-btn');
   const downloadBtn   = document.getElementById('download-btn');
+  const copyBtn       = document.getElementById('copy-btn');
+  const toastContainer= document.getElementById('toast-container');
   const qrCanvas      = document.getElementById('qr-canvas');
   const qrCanvasWrap  = document.getElementById('qr-canvas-wrap');
   const qrPlaceholder = document.getElementById('qr-placeholder');
@@ -130,6 +132,25 @@
    */
   const syncHexLabel = (input, label) => {
     label.textContent = hexLabel(input.value);
+  };
+
+  const showToast = (message, isError = false) => {
+    if (!toastContainer) return;
+    const toast = document.createElement('div');
+    toast.className = `toast ${isError ? 'toast-error' : ''}`;
+    
+    const iconSvg = isError 
+      ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`
+      : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+    
+    toast.innerHTML = `${iconSvg} <span>${message}</span>`;
+    
+    toastContainer.appendChild(toast);
+    
+    setTimeout(() => {
+      toast.classList.add('toast-hide');
+      toast.addEventListener('animationend', () => toast.remove());
+    }, 3000);
   };
 
   /* ── Scanner animation ───────────────────────────────────── */
@@ -284,9 +305,14 @@
     previewMeta.hidden = false;
     statusChars.textContent = `· ${charCount.toLocaleString()} char${charCount !== 1 ? 's' : ''}`;
 
-    /* Enable download */
+    /* Enable download and copy */
     downloadBtn.disabled = false;
     downloadBtn.setAttribute('aria-disabled', 'false');
+    
+    if (copyBtn) {
+      copyBtn.disabled = false;
+      copyBtn.setAttribute('aria-disabled', 'false');
+    }
 
     qrGenerated = true;
   };
@@ -337,6 +363,28 @@
     /* Visual confirmation flash */
     downloadBtn.classList.add('did-download');
     setTimeout(() => downloadBtn.classList.remove('did-download'), 1200);
+    showToast('Saved to your device');
+  };
+
+  /* ── Copy to Clipboard ───────────────────────────────────── */
+  const copyToClipboard = async () => {
+    if (!qrGenerated) return;
+
+    try {
+      qrCanvas.toBlob(async (blob) => {
+        try {
+          const item = new ClipboardItem({ 'image/png': blob });
+          await navigator.clipboard.write([item]);
+          showToast('Copied to clipboard');
+        } catch (err) {
+          console.error('Clipboard API error:', err);
+          showToast('Failed to copy image', true);
+        }
+      }, 'image/png');
+    } catch (err) {
+      console.error('Blob error:', err);
+      showToast('Failed to copy image', true);
+    }
   };
 
   /* ── Clear ───────────────────────────────────────────────── */
@@ -355,6 +403,11 @@
     downloadBtn.disabled = true;
     downloadBtn.setAttribute('aria-disabled', 'true');
     downloadBtn.classList.remove('did-download');
+    
+    if (copyBtn) {
+      copyBtn.disabled = true;
+      copyBtn.setAttribute('aria-disabled', 'true');
+    }
 
     scannerFrame.classList.remove('is-ready', 'is-scanning');
 
@@ -406,6 +459,7 @@
 
   clearBtn.addEventListener('click', clearAll);
   downloadBtn.addEventListener('click', downloadQR);
+  if (copyBtn) copyBtn.addEventListener('click', copyToClipboard);
 
   ecLevel.addEventListener('change', (e) => {
     ecAutoMode = false;
