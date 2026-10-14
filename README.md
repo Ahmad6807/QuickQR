@@ -1,3 +1,7 @@
+# Live 
+https://quick-qr-eta.vercel.app/
+you can click on this link and visit the site
+
 # QuickQR Generator
 
 A fast, private, single-page QR code generator that runs entirely in your browser. No server, no data transmission, no dependencies beyond a single CDN script.
